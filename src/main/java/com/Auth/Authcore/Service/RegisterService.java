@@ -19,6 +19,7 @@ public class RegisterService
         }
         user.setPassword(encoder.encode(user.getPassword()));
         repo.save(user);
+        System.out.println("Saved ");
         return "Registration Successfully ";
     }
 
