@@ -3,14 +3,15 @@ package com.Auth.Authcore.repository;
 import com.Auth.Authcore.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RegisterRepo extends JpaRepository<User, Long>
 {
 
-    Optional<User> findByUsername(String username);
+    Optional<User> findByname(String name);
 
-    Optional<User> findByEmail(String email);
+    List<User>findByEmail(String email);
 
     boolean existsByEmail(String email);
 

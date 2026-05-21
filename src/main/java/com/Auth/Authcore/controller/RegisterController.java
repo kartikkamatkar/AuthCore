@@ -18,6 +18,7 @@ public class RegisterController
     private RegisterService service;
     @PostMapping("/register")
     public  String register(@RequestBody User user ){
+        System.out.println("API HIT");
         return  service.registerUser(user);
     }
 }
