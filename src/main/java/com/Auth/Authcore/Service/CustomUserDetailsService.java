@@ -40,12 +40,12 @@ public class CustomUserDetailsService
                         new UsernameNotFoundException(
                                 "User Not Found"
                         ));
-
+        System.out.println(user.getRole());
         return org.springframework.security.core.userdetails.User
                 .builder()
                 .username(user.getName())
                 .password(user.getPassword())
-                .roles(user.getRole())
+                .authorities(user.getRole())
                 .build();
     }
 }
