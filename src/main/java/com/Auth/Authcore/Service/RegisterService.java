@@ -18,6 +18,7 @@ public class RegisterService
             return "Email is Already Exist";
         }
         user.setPassword(encoder.encode(user.getPassword()));
+        user.setRole("USER");
         repo.save(user);
         System.out.println("Saved ");
         return "Registration Successfully ";

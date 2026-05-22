@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface RegisterRepo extends JpaRepository<User, Long>
 {
 
-    Optional<User> findByname(String name);
+    Optional<User> findByName(String name);
 
     List<User>findByEmail(String email);
 

@@ -1,5 +1,5 @@
 package com.Auth.Authcore.Service;
-
+import com.Auth.Authcore.dto.AuthResponse;
 import com.Auth.Authcore.entity.User;
 import com.Auth.Authcore.jwt.JwtUtil;
 import com.Auth.Authcore.repository.RegisterRepo;
@@ -21,14 +21,15 @@ public class LoginService
     @Autowired
     private RegisterRepo repo;
 
-    public String loginuser(User user)
+    public AuthResponse loginuser(User user)
     {
         Optional<User> dbuser =
-                repo.findByname(user.getName());
+            repo.findByName(user.getName());
 
         if(dbuser.isEmpty())
         {
-            return "User not found";
+            return new AuthResponse("User not found",
+            null);
         }
 
         boolean isMatch = encoder.matches(
@@ -38,11 +39,11 @@ public class LoginService
 
         if(isMatch)
         {
-            return jwtUtil.generateToken(
-                    user.getName()
-            );
+            String accessToken=jwtUtil.generateToken(user.getName());
+            String refreshToken="refresh-Token-demo";
+            return new AuthResponse(accessToken,refreshToken);
         }
 
-        return "Invalid Password";
+        return new AuthResponse("Invalid Password",null);
     }
 }
