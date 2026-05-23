@@ -1,5 +1,6 @@
 package com.Auth.Authcore.jwt;
 
+import com.Auth.Authcore.Service.RedisService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,8 @@ public class JwtFilter extends OncePerRequestFilter
         @Autowired
         private UserDetailsService userDetailsService;
 
+        @Autowired
+        private RedisService redisService;
         /*
          HUMAN NOTE:
          CHANGE: on invalid or expired JWT we now return HTTP 401 and a simple
@@ -61,11 +64,21 @@ public class JwtFilter extends OncePerRequestFilter
 
                 String token = null;
                 String username = null;
-
                 if(authHeader != null && authHeader.startsWith("Bearer "))
                 {
                         token = authHeader.substring(7);
 
+                        if(redisService.isBlacklisted(token))
+                        {
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+                                response.setContentType("application/json");
+
+                                response.getWriter()
+                                        .write("{\"error\":\"Token Blacklisted\"}");
+
+                                return;
+                        }
                         try
                         {
                                 username = jwtUtil.extractUsername(token);
