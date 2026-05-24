@@ -28,7 +28,6 @@ public class RegisterService
         redisService.saveOtp(user.getEmail(),otp);
         emaiService.sendOtp(user.getEmail(),otp);
         user.setPassword(encoder.encode(user.getPassword()));
-        user.setPassword(encoder.encode(user.getPassword()));
         user.setRole("USER");
         repo.save(user);
         System.out.println("Saved ");
