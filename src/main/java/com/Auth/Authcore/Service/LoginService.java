@@ -33,8 +33,11 @@ public class LoginService
     public String loginuser(User user)
     {
         Optional<User> dbuser =
-            repo.findByName(user.getName());
+            repo.findByEmail(user.getEmail());
 
+        if(user.getPassword()==null){
+            return "password required";
+        }
         if(dbuser.isEmpty())
         {
             return "User not found";

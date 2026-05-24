@@ -37,7 +37,7 @@ public class AuthController
             return "OTP Expire ";
         }
         if(saveOTP.equals(request.getOtp())){
-            User user =repo.findByEmail(request.getEmail()).get(0);
+            User user =repo.findByEmail(request.getEmail()).get();
             return jwtUtil.generateToken(user.getName());
 
         }
