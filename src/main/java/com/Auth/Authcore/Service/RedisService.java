@@ -21,5 +21,8 @@ public class RedisService
     {
         redisTemplate.opsForValue().set(email,otp,5,TimeUnit.MINUTES);
     }
+    public String getOTP(String email){
+        return (String) redisTemplate.opsForValue().get(email);
+    }
 
 }

@@ -21,15 +21,23 @@ public class LoginService
     @Autowired
     private RegisterRepo repo;
 
-    public AuthResponse loginuser(User user)
+    @Autowired
+    private RedisService redisService;
+
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private EmaiService emaiService;
+
+    public String loginuser(User user)
     {
         Optional<User> dbuser =
             repo.findByName(user.getName());
 
         if(dbuser.isEmpty())
         {
-            return new AuthResponse("User not found",
-            null);
+            return "User not found";
         }
 
         boolean isMatch = encoder.matches(
@@ -39,11 +47,12 @@ public class LoginService
 
         if(isMatch)
         {
-            String accessToken=jwtUtil.generateToken(user.getName());
-            String refreshToken="refresh-Token-demo";
-            return new AuthResponse(accessToken,refreshToken);
+            String otp=otpService.otpService();
+            redisService.saveOtp(dbuser.get().getEmail(),otp);
+            emaiService.sendOtp(dbuser.get().getEmail(),otp);
+            return "OTP Sent";
         }
 
-        return new AuthResponse("Invalid Password",null);
+        return "Invalid Password";
     }
 }

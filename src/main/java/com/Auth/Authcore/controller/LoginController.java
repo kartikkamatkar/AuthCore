@@ -18,7 +18,7 @@ public class LoginController
     private LoginService service;
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody User user){
+    public String login(@RequestBody User user){
         return service.loginuser(user);}
     @PostMapping("/refresh")
     public String refresh(@RequestBody RefreshToken request){
