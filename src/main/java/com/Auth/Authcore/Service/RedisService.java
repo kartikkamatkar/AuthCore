@@ -17,5 +17,9 @@ public class RedisService
     public boolean isBlacklisted(String token){
         return  redisTemplate.hasKey(token);
     }
+    public void saveOtp (String email,String otp)
+    {
+        redisTemplate.opsForValue().set(email,otp,5,TimeUnit.MINUTES);
+    }
 
 }

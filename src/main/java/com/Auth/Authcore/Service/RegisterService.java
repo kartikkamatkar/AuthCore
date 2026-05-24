@@ -13,10 +13,21 @@ public class RegisterService
     private BCryptPasswordEncoder encoder;
     @Autowired
     private RegisterRepo repo;
+    @Autowired
+    private EmaiService emaiService;
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private RedisService redisService;
     public String registerUser(User user){
         if(repo.existsByEmail(user.getEmail())){
             return "Email is Already Exist";
         }
+        String otp = otpService.otpService();
+        redisService.saveOtp(user.getEmail(),otp);
+        emaiService.sendOtp(user.getEmail(),otp);
+        user.setPassword(encoder.encode(user.getPassword()));
         user.setPassword(encoder.encode(user.getPassword()));
         user.setRole("USER");
         repo.save(user);
