@@ -3,7 +3,7 @@ package com.Auth.Authcore.dto;
 public class ResetPasswordRequest
 {
     private String email;
-    private String newpassword;
+    private String newPassword;
     private String otp;
 
     public String getEmail() {
@@ -14,12 +14,12 @@ public class ResetPasswordRequest
         this.email = email;
     }
 
-    public String getNewpassword() {
-        return newpassword;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setNewpassword(String newpassword) {
-        this.newpassword = newpassword;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 
     public String getOtp() {
