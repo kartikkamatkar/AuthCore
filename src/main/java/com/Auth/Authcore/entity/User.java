@@ -1,5 +1,7 @@
 package com.Auth.Authcore.entity;
-
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.persistence.*;
 
 @Entity
@@ -9,12 +11,13 @@ public class User
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    @Size(min =6,message = "password must be 6 digit ")
     private String password;
 
     @Column(unique = true)
+    @Email(message = "Invalid Email")
     private String email;
-
+    @NotBlank(message = "Name Required ")
     private String name;
 
     private String role;

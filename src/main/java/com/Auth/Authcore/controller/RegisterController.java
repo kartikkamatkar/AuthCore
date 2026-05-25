@@ -2,6 +2,7 @@ package com.Auth.Authcore.controller;
 
 import com.Auth.Authcore.Service.RegisterService;
 import com.Auth.Authcore.entity.User;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ public class RegisterController
     @Autowired
     private RegisterService service;
     @PostMapping("/register")
-    public  String register(@RequestBody User user ){
+    public  String register(@Valid @RequestBody User user ){
         System.out.println("API HIT");
         return  service.registerUser(user);
     }

@@ -4,51 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="app.js"></script>
 </head>
 <body>
-    <h1>Login Page</h1>
-    
-    <form action="/login.html" method="post">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required>
-        <br>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <input type="submit" value="Login">
-    </form>
+    <main class="shell">
+        <section class="page-frame">
+            <div class="hero-panel">
+                <div>
+                    <div class="eyebrow">Secure access</div>
+                    <h1 class="hero-title">Sign in with a clean, modern flow.</h1>
+                    <p class="hero-copy">Use your email and password, then complete OTP verification to finish sign in.</p>
+                </div>
+                <div class="hero-grid">
+                    <div class="metric"><strong>Email</strong><span>Primary login identity</span></div>
+                    <div class="metric"><strong>OTP</strong><span>Second step verification</span></div>
+                    <div class="metric"><strong>Fast</strong><span>Simple and responsive UI</span></div>
+                </div>
+            </div>
 
-    <script>
-        // Handle form submission 
-        document.querySelector('form').addEventListener('submit', function(event){
-            event.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // Perform login and send data to server 
-            fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.text(); // Passes the token string to the next block
-                } else {
-                    throw new Error('Login failed');
-                }
-            })
-            .then(data => {
-                localStorage.setItem("token", data); // Stores the login token safely
-                alert('Login Successful');
-                window.location.href = '/dashboard.html'; // Redirects user
-            })
-            .catch(error => {
-                console.error('Error for login:', username, error);
-                alert('Login failed. Please check your credentials.');
-            });
-        }); // <-- FIXED: Added missing closure for the addEventListener block
-    </script>
+            <section class="auth-card">
+                <h2 class="card-title">Login</h2>
+                <p class="card-subtitle">Enter your account details to request the OTP and continue.</p>
+                <form data-login-form>
+                    <div class="field">
+                        <label for="login-email">Email</label>
+                        <input id="login-email" name="email" type="email" placeholder="name@example.com" required>
+                    </div>
+                    <div class="field">
+                        <label for="login-password">Password</label>
+                        <input id="login-password" name="password" type="password" placeholder="Your password" required>
+                    </div>
+                    <div class="actions">
+                        <button class="primary" type="submit">Login</button>
+                        <a class="button-link secondary" href="register.html">Create Account</a>
+                    </div>
+                    <div class="helper-row">
+                        <a href="forgot-password.html">Forgot password?</a>
+                        <a href="otp-verify.html">Verify OTP</a>
+                    </div>
+                    <div class="notice" data-status></div>
+                </form>
+            </section>
+        </section>
+    </main>
 </body>
 </html>

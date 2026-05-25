@@ -14,7 +14,7 @@ public class RegisterService
     @Autowired
     private RegisterRepo repo;
     @Autowired
-    private EmaiService emaiService;
+    private EmailService emailService;
     @Autowired
     private OtpService otpService;
 
@@ -26,7 +26,7 @@ public class RegisterService
         }
         String otp = otpService.otpService();
         redisService.saveOtp(user.getEmail(),otp);
-        emaiService.sendOtp(user.getEmail(),otp);
+        emailService.sendOtp(user.getEmail(),otp);
         user.setPassword(encoder.encode(user.getPassword()));
         user.setRole("USER");
         repo.save(user);

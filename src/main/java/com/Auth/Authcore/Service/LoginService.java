@@ -28,7 +28,7 @@ public class LoginService
     private OtpService otpService;
 
     @Autowired
-    private EmaiService emaiService;
+    private EmailService emailService;
 
     public String loginuser(User user)
     {
@@ -52,7 +52,7 @@ public class LoginService
         {
             String otp=otpService.otpService();
             redisService.saveOtp(dbuser.get().getEmail(),otp);
-            emaiService.sendOtp(dbuser.get().getEmail(),otp);
+            emailService.sendOtp(dbuser.get().getEmail(),otp);
             return "OTP Sent";
         }
 
