@@ -31,7 +31,7 @@ public class RegisterService
         user.setRole("USER");
         repo.save(user);
         System.out.println("Saved ");
-        return "Registration Successfully ";
+        return "Registration Successfully Otp Sent Successfully :";
     }
 
 }

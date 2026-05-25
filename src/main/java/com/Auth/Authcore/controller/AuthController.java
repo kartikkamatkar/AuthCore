@@ -1,5 +1,7 @@
 package com.Auth.Authcore.controller;
 
+import com.Auth.Authcore.Service.EmaiService;
+import com.Auth.Authcore.Service.OtpService;
 import com.Auth.Authcore.Service.RedisService;
 import com.Auth.Authcore.Service.RegisterService;
 import com.Auth.Authcore.dto.OTPVerifyRequest;
@@ -23,6 +25,10 @@ public class AuthController
     private RegisterRepo repo;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private OtpService otpservice;
+    @Autowired
+    private EmaiService emaiService;
     @PostMapping("/logout")
     public  String logout(HttpServletRequest request){
         String authHeader =request.getHeader("Authorization");
@@ -42,5 +48,19 @@ public class AuthController
 
         }
         return "Invalid Otp";
+    }
+    @PostMapping("/forgetpass")
+    public String forgetpass(@RequestBody User user)
+    {
+        User dbuser=repo.findByEmail(user.getEmail()).orElse(null);
+        if(dbuser==null){
+            return "Email not Exist ";
+        }
+        String otp= otpservice.otpService();
+        redisService.saveOtp(user.getEmail(),otp);
+        emaiService.sendOtp(user.getEmail(),otp);
+        return "Reset Otp sent ";
+
+
     }
 }
