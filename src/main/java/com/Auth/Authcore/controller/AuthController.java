@@ -1,6 +1,6 @@
 package com.Auth.Authcore.controller;
 
-import com.Auth.Authcore.Service.EmaiService;
+import com.Auth.Authcore.Service.EmailService;
 import com.Auth.Authcore.Service.OtpService;
 import com.Auth.Authcore.Service.RedisService;
 import com.Auth.Authcore.Service.RegisterService;
@@ -32,7 +32,7 @@ public class AuthController
     @Autowired
     private OtpService otpservice;
     @Autowired
-    private EmaiService emaiService;
+    private EmailService emailService;
     @PostMapping("/logout")
     public  String logout(HttpServletRequest request){
         String authHeader =request.getHeader("Authorization");
@@ -62,7 +62,7 @@ public class AuthController
         }
         String otp= otpservice.otpService();
         redisService.saveOtp(user.getEmail(),otp);
-        emaiService.sendOtp(user.getEmail(),otp);
+        emailService.sendOtp(user.getEmail(),otp);
         return "Reset Otp sent ";
 
 

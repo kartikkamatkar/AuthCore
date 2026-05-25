@@ -4,44 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="app.js"></script>
 </head>
 <body>
-    <h1>Register</h1>
-    <form action ="/register.html" method="post">
-        <label for username>Username </label>
-        <input type ="text" id =username name ="username " required>
-        <br>
-        <label for email>Email</label>
-        <input type ="email" id =email name ="email" required>
-        <br>
-        <label for password>password</label>
-        <input type ="password" id =password name ='password' required>
-        <br>
-        <input type ="submit" value ="Register">
-        </form>
-        <script>
-            // Fixed: Added leading slash to URL path and fixed headers syntax object
-        fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, email, password })
-        })
-        // Fixed: Lowercased 'response' variable for standard JS styling and checked status correctly
-        .then(response => {
-            if (response.ok) {
-                alert('Registration successful');
-                window.location.href = '/login.html';
-            } else {
-                alert('Registration failed');
-            }
-        })
-        // Good practice: catch network errors
-        .catch(error => {
-            console.error('Error:', error);
-            alert('A network error occurred.');
-        });
-        </script>
+    <main class="shell">
+        <section class="page-frame">
+            <div class="hero-panel">
+                <div>
+                    <div class="eyebrow">Create account</div>
+                    <h1 class="hero-title">Register with a polished onboarding flow.</h1>
+                    <p class="hero-copy">Create your account, receive an OTP, and continue through the same clean UI.</p>
+                </div>
+                <div class="hero-grid">
+                    <div class="metric"><strong>Profile</strong><span>Name, email, password</span></div>
+                    <div class="metric"><strong>OTP</strong><span>Automatic verification step</span></div>
+                    <div class="metric"><strong>Ready</strong><span>Dashboard after sign-in</span></div>
+                </div>
+            </div>
+
+            <section class="auth-card">
+                <h2 class="card-title">Register</h2>
+                <p class="card-subtitle">Set up your account and get the verification code in your inbox.</p>
+                <form data-register-form>
+                    <div class="field">
+                        <label for="register-name">Name</label>
+                        <input id="register-name" name="name" type="text" placeholder="Your name" required>
+                    </div>
+                    <div class="field">
+                        <label for="register-email">Email</label>
+                        <input id="register-email" name="email" type="email" placeholder="name@example.com" required>
+                    </div>
+                    <div class="field">
+                        <label for="register-password">Password</label>
+                        <input id="register-password" name="password" type="password" placeholder="Create a strong password" required>
+                    </div>
+                    <div class="actions">
+                        <button class="primary" type="submit">Create Account</button>
+                        <a class="button-link secondary" href="login.html">Back to Login</a>
+                    </div>
+                    <div class="notice" data-status></div>
+                </form>
+            </section>
+        </section>
+    </main>
 </body>
 </html>
