@@ -16,7 +16,28 @@ public class SecurityConfig
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http ) throws Exception{
         http.csrf(csrf->csrf.disable())
-                .authorizeHttpRequests(auth->auth.requestMatchers("/auth/login","auth/register","auth/logout","auth/verifyotp","auth/forgetpass","/auth/resetpass").permitAll().requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
+            .authorizeHttpRequests(auth->auth
+                .requestMatchers(
+                    "/",
+                    "/login",
+                    "/register",
+                    "/otp-verify",
+                    "/forgot-password",
+                    "/reset-password",
+                    "/dashboard",
+                    "/admin-dashboard",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/auth/login",
+                    "/auth/register",
+                    "/auth/logout",
+                    "/auth/verifyotp",
+                    "/auth/forgetpass",
+                    "/auth/resetpass"
+                ).permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

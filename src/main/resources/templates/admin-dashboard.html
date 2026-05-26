@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" th:href="@{/styles.css}" href="/styles.css">
+  <script defer th:src="@{/app.js}" src="/app.js"></script>
+</head>
+<body>
+  <main class="shell dashboard-shell">
+    <section class="dashboard-layout">
+      <article class="dashboard-card">
+        <div class="topbar">
+          <div>
+            <div class="eyebrow">Admin panel</div>
+            <h1 class="card-title">Admin Dashboard</h1>
+          </div>
+          <div class="pill">System online</div>
+        </div>
+        <p class="card-subtitle">A clean summary screen for privileged users. It stays static on the frontend, with no backend changes required.</p>
+
+        <div class="stats-grid">
+          <div class="stat"><strong>128</strong><span>Active users</span></div>
+          <div class="stat"><strong>24</strong><span>Pending verifications</span></div>
+          <div class="stat"><strong>99.9%</strong><span>Service health</span></div>
+        </div>
+
+        <div class="activity-list">
+          <div class="activity-item"><strong>User registrations</strong><span>Today</span></div>
+          <div class="activity-item"><strong>OTP requests</strong><span>Last hour</span></div>
+          <div class="activity-item"><strong>Password resets</strong><span>This week</span></div>
+        </div>
+
+        <div class="actions" style="margin-top: 22px;">
+          <a class="button-link secondary" th:href="@{/dashboard}" href="/dashboard">View User Dashboard</a>
+          <button class="primary" type="button" data-logout>Logout</button>
+        </div>
+      </article>
+
+      <aside class="info-card">
+        <h2 class="card-title" style="font-size: 2rem;">Admin notes</h2>
+        <p class="card-subtitle">Use this page as the visual shell for admin-focused views, alerts, or operational shortcuts.</p>
+        <div class="split-links">
+          <div class="link-card">
+            <strong>Security</strong>
+            <span>Track auth events and sensitive flows.</span>
+          </div>
+          <div class="link-card">
+            <strong>Operations</strong>
+            <span>Surface current system status and actions.</span>
+          </div>
+          <div class="link-card">
+            <strong>Navigation</strong>
+            <span>Jump back to login or user views quickly.</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

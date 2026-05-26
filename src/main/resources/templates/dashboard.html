@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/styles.css}" href="/styles.css">
+    <script defer th:src="@{/app.js}" src="/app.js"></script>
+</head>
+<body>
+    <main class="shell dashboard-shell">
+        <section class="dashboard-layout">
+            <article class="dashboard-card">
+                <div class="topbar">
+                    <div>
+                        <div class="eyebrow">User area</div>
+                        <h1 class="card-title">Dashboard</h1>
+                    </div>
+                    <div class="pill" data-user-badge>Guest</div>
+                </div>
+                <p class="card-subtitle">A clean landing area after OTP verification with quick navigation to the rest of the flow.</p>
+
+                <div class="stats-grid">
+                    <div class="stat"><strong>01</strong><span>Logged in</span></div>
+                    <div class="stat"><strong>02</strong><span>OTP verified</span></div>
+                    <div class="stat"><strong>03</strong><span>Session ready</span></div>
+                </div>
+
+                <div class="activity-list">
+                    <div class="activity-item"><strong>Profile</strong><span>Review account status</span></div>
+                    <div class="activity-item"><strong>Security</strong><span>Use OTP and reset flows</span></div>
+                    <div class="activity-item"><strong>Admin view</strong><span>Open the admin dashboard</span></div>
+                </div>
+
+                <div class="actions" style="margin-top: 22px;">
+                    <a class="button-link secondary" th:href="@{/admin-dashboard}" href="/admin-dashboard">Admin Dashboard</a>
+                    <button class="primary" type="button" data-logout>Logout</button>
+                </div>
+            </article>
+
+            <aside class="info-card">
+                <h2 class="card-title" style="font-size: 2rem;">Quick links</h2>
+                <p class="card-subtitle">Move between authentication screens and keep the interface consistent.</p>
+                <div class="split-links">
+                    <a class="link-card" th:href="@{/login}" href="/login">
+                        <strong>Login</strong>
+                        <span>Return to sign in.</span>
+                    </a>
+                    <a class="link-card" th:href="@{/register}" href="/register">
+                        <strong>Register</strong>
+                        <span>Create a new account.</span>
+                    </a>
+                    <a class="link-card" th:href="@{/forgot-password}" href="/forgot-password">
+                        <strong>Forgot Password</strong>
+                        <span>Request a reset OTP.</span>
+                    </a>
+                </div>
+            </aside>
+        </section>
+    </main>
+</body>
+</html>
