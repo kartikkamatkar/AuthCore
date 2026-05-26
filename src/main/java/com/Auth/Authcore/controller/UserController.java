@@ -1,16 +1,15 @@
 package com.Auth.Authcore.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/admin")
-public class AdminController {
+@RequestMapping("/api/user")
+public class UserController {
 
-    @GetMapping("/stats")
-    public String stats() {
-        return "Admin Access Granted";
+    @GetMapping("/profile")
+    public String profile() {
+        return "User Access Granted";
     }
 }

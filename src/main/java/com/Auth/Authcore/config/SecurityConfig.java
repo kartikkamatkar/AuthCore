@@ -18,6 +18,7 @@ public class SecurityConfig {
             throws Exception {
 
         http.csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
@@ -27,27 +28,20 @@ public class SecurityConfig {
                                 "/otp-verify",
                                 "/forgot-password",
                                 "/reset-password",
+                                "/dashboard",
+                                "/admin-dashboard",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/styles.css",
-                                "/app.js",
-                                "/favicon.ico",
-                                "/auth/login",
-                                "/auth/register",
-                                "/auth/logout",
-                                "/auth/verifyotp",
-                                "/auth/forgetpass",
-                                "/auth/resetpass",
-                                "/auth/me"
+                                "/auth/**"
                         ).permitAll()
 
-                        .requestMatchers("/admin-dashboard")
-                        .permitAll()
-
-                        .requestMatchers("/dashboard").permitAll()
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
+
+                        .requestMatchers("/api/user/**")
+                        .hasAnyRole("USER", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
 

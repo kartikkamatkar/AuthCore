@@ -65,12 +65,9 @@ fetch("http://localhost:9090/api/admin/stats", {
     Authorization: `Bearer ${token}`
   }
 })
-        .then(res => {
-          if(res.status === 403) {
-            alert("Access Denied");
-            window.location.href = "/dashboard";
-          }
-        });</script>
+        .then(res => res.text())
+        .then(console.log)
+</script>
 
 </body>
 </html>
