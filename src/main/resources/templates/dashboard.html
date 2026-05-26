@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="actions" style="margin-top: 22px;">
-                    <a class="button-link secondary" th:href="@{/admin-dashboard}" href="/admin-dashboard">Admin Dashboard</a>
+                    <a class="button-link secondary" href="admin-dashboard.html">Admin Dashboard</a>
                     <button class="primary" type="button" data-logout>Logout</button>
                 </div>
             </article>
@@ -42,15 +42,15 @@
                 <h2 class="card-title" style="font-size: 2rem;">Quick links</h2>
                 <p class="card-subtitle">Move between authentication screens and keep the interface consistent.</p>
                 <div class="split-links">
-                    <a class="link-card" th:href="@{/login}" href="/login">
+                    <a class="link-card" href="login.html">
                         <strong>Login</strong>
                         <span>Return to sign in.</span>
                     </a>
-                    <a class="link-card" th:href="@{/register}" href="/register">
+                    <a class="link-card" href="register.html">
                         <strong>Register</strong>
                         <span>Create a new account.</span>
                     </a>
-                    <a class="link-card" th:href="@{/forgot-password}" href="/forgot-password">
+                    <a class="link-card" href="forgot-password.html">
                         <strong>Forgot Password</strong>
                         <span>Request a reset OTP.</span>
                     </a>
