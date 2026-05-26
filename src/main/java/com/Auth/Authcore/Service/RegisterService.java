@@ -22,14 +22,14 @@ public class RegisterService
     private RedisService redisService;
     public String registerUser(User user){
         if(repo.existsByEmail(user.getEmail())){
-            return "Email is Already Exist";
+            throw new IllegalStateException("Email already exists");
         }
         String otp = otpService.otpService();
         redisService.saveOtp(user.getEmail(),otp);
         emailService.sendOtp(user.getEmail(),otp);
         user.setPassword(encoder.encode(user.getPassword()));
         user.setRole("USER");
-        repo.save(user);
+        redisService.saveUser(user.getEmail(),user);
         System.out.println("Saved ");
         return "Registration Successfully Otp Sent Successfully :";
     }

@@ -8,7 +8,7 @@ public class OtpService
 {
     public String otpService(){
     Random random=new Random();
-    int otp =100000+random.nextInt(90000);
+    int otp = 100000 + random.nextInt(900000);
     return String.valueOf(otp);
     }
 

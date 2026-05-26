@@ -38,6 +38,23 @@ function getFormValues(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+async function handleGetJson(path) {
+  const response = await fetch(path, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
+    }
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || 'Request failed');
+  }
+
+  return response.json();
+}
+
 function attachAuthLinks(root) {
   if (!root) {
     return;
@@ -101,19 +118,22 @@ function initLoginPage() {
         email: data.email,
         password: data.password
       });
-      if ((token || '').toLowerCase().includes('otp sent')) {
-        setStatus(status, 'OTP sent. Check your email to continue.', 'success');
-        window.location.href = 'otp-verify.html?email=' + encodeURIComponent(data.email);
-        return;
+
+      // store token
+      localStorage.setItem('token', token);
+
+      // fetch current user info
+      const me = await handleGetJson('/auth/me');
+      if (me) {
+        localStorage.setItem('authcore-user', JSON.stringify(me));
       }
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('authcore-user', JSON.stringify({
-        name: data.email || '',
-        email: data.email || ''
-      }));
       setStatus(status, 'Login successful. Redirecting...', 'success');
-      window.location.href = 'dashboard.html';
+      if (me && me.role && me.role.toUpperCase() === 'ADMIN') {
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        window.location.href = 'dashboard.html';
+      }
     } catch (error) {
       setStatus(status, error.message || 'Login failed', 'error');
     } finally {
@@ -156,6 +176,31 @@ function initOtpPage() {
     } finally {
       submitButton.disabled = false;
     }
+  });
+}
+
+function initPasswordToggles() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Toggle password visibility');
+    btn.textContent = '👁';
+    btn.style.position = 'absolute';
+    btn.style.right = '8px';
+    btn.style.top = '50%';
+    btn.style.transform = 'translateY(-50%)';
+    btn.style.border = '0';
+    btn.style.background = 'transparent';
+    btn.style.cursor = 'pointer';
+    btn.style.fontSize = '1rem';
+    btn.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+    wrapper.appendChild(btn);
   });
 }
 
@@ -229,6 +274,12 @@ function initDashboardPage() {
   const token = getToken();
   const storedUser = localStorage.getItem('authcore-user');
 
+  // require authentication to view dashboard
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+
   if (userBadge) {
     if (storedUser) {
       try {
@@ -237,10 +288,8 @@ function initDashboardPage() {
       } catch {
         userBadge.textContent = 'User';
       }
-    } else if (token) {
-      userBadge.textContent = 'Authenticated User';
     } else {
-      userBadge.textContent = 'Guest';
+      userBadge.textContent = 'Authenticated User';
     }
   }
 
@@ -254,6 +303,23 @@ function initDashboardPage() {
 }
 
 function initAdminPage() {
+  // require admin role to view this page
+  const token = getToken();
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  handleGetJson('/auth/me').then((me) => {
+    if (!me || !me.role || me.role.toUpperCase() !== 'ADMIN') {
+      // not an admin — redirect to user dashboard
+      window.location.href = 'dashboard.html';
+      return;
+    }
+  }).catch(() => {
+    window.location.href = 'login.html';
+  });
+
   document.querySelectorAll('[data-logout]').forEach((button) => {
     button.addEventListener('click', () => {
       localStorage.removeItem('token');
@@ -272,4 +338,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initResetPasswordPage();
   initDashboardPage();
   initAdminPage();
+  initPasswordToggles();
 });

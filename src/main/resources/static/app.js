@@ -1,4 +1,5 @@
-const api = (path) => `/auth${path}`;
+const BASE_URL ="http://localhost:9090"
+const api = (path) => `${BASE_URL}/auth${path}`;
 
 function getToken() {
   return localStorage.getItem('token') || '';

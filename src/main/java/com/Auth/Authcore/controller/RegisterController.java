@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Provider;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/auth")
@@ -15,9 +17,15 @@ public class RegisterController
 {
     @Autowired
     private RegisterService service;
+
     @PostMapping("/register")
-    public  String register(@Valid @RequestBody User user ){
+    public ResponseEntity<String> register(@Valid @RequestBody User user ){
         System.out.println("API HIT");
-        return  service.registerUser(user);
+        try{
+            String msg = service.registerUser(user);
+            return ResponseEntity.ok(msg);
+        }catch(IllegalStateException ex){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
 }

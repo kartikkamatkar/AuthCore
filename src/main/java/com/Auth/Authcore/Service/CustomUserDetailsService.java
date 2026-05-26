@@ -21,7 +21,7 @@ public class CustomUserDetailsService
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException
     {
-        User user = repo.findByName(username)
+        User user = repo.findByEmail(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
                                 "User Not Found"
