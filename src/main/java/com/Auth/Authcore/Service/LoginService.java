@@ -50,12 +50,10 @@ public class LoginService
 
         if(isMatch)
         {
-            String otp=otpService.otpService();
-            redisService.saveOtp(dbuser.get().getEmail(),otp);
-            emailService.sendOtp(dbuser.get().getEmail(),otp);
-            return "OTP Sent";
+            // Successful password match: return JWT token for the client
+            return jwtUtil.generateToken(dbuser.get().getEmail());
         }
 
-        return "Invalid Password";
+        return  "Invalid Credentials";
     }
 }

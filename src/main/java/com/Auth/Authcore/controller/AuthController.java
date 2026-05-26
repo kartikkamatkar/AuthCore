@@ -12,10 +12,7 @@ import com.Auth.Authcore.repository.RegisterRepo;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,26 +30,42 @@ public class AuthController
     private OtpService otpservice;
     @Autowired
     private EmailService emailService;
+
+    @GetMapping("/stats")
+    public String stats() {
+        return "Admin Access Granted";
+    }
     @PostMapping("/logout")
     public  String logout(HttpServletRequest request){
         String authHeader =request.getHeader("Authorization");
         String token =authHeader.substring(7);
         redisService.blacklistToken(token);
         return "LogOut ";
-    }
-    @PostMapping("/verifyotp")
-    public String verifyotp(@RequestBody OTPVerifyRequest request){
-        String saveOTP=redisService.getOTP(request.getEmail());
-        if(saveOTP==null){
-            return "OTP Expire ";
-        }
-        if(saveOTP.equals(request.getOtp())){
-            User user =repo.findByEmail(request.getEmail()).get();
-            return jwtUtil.generateToken(user.getName());
+    }@PostMapping("/verifyotp")
+public String verifyotp(@RequestBody OTPVerifyRequest request){
 
-        }
-        return "Invalid Otp";
+    String saveOTP = redisService.getOTP(request.getEmail());
+
+    if(saveOTP == null){
+        return "OTP Expired";
     }
+
+    if(!saveOTP.equals(request.getOtp())){
+        return "Invalid OTP";
+    }
+
+    User user = (User) redisService.getUser(request.getEmail());
+
+    if(user == null){
+        return "User Data Expired";
+    }
+
+    repo.save(user);
+
+    redisService.deleteUser(request.getEmail());
+
+    return jwtUtil.generateToken(user.getEmail());
+}
     @PostMapping("/forgetpass")
     public String forgetpass(@RequestBody User user)
     {
@@ -81,5 +94,20 @@ public class AuthController
         user.setPassword(encoder.encode(request.getNewPassword()));
         repo.save(user);
         return "Password Reset Successfully";
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/me")
+    public User me(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if(authHeader==null || !authHeader.startsWith("Bearer ")){
+            return null;
+        }
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractUsername(token);
+        User user = repo.findByEmail(email).orElse(null);
+        if(user!=null){
+            user.setPassword(null);
+        }
+        return user;
     }
 }

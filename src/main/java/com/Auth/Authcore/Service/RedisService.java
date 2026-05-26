@@ -24,5 +24,19 @@ public class RedisService
     public String getOTP(String email){
         return (String) redisTemplate.opsForValue().get(email);
     }
+    public void saveUser(String email, Object user) {
+        redisTemplate.opsForValue().set(
+                "USER:" + email,
+                user,
+                5,
+                TimeUnit.MINUTES
+        );
+    }
+    public Object getUser(String email) {
+        return redisTemplate.opsForValue().get("USER:" + email);
+    }
+    public void deleteUser(String email) {
+        redisTemplate.delete("USER:" + email);
+    }
 
 }

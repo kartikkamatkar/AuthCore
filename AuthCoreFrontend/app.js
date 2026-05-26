@@ -1,5 +1,42 @@
-const BASE_URL ="http://localhost:9090"
-const api = (path) => `${BASE_URL}/auth${path}`;
+// Determine backend origin when frontend is opened from file:// (local testing).
+const API_ORIGIN = window.location.protocol === 'file:' ? 'http://localhost:9090' : '';
+const api = (path) => `${API_ORIGIN}/auth${path}`;
+
+function safeRedirect(url) {
+  try {
+    // try top-level navigation first
+    if (window.top && window.top !== window) {
+      window.top.location.href = url;
+    } else {
+      window.location.href = url;
+    }
+  } catch (e) {
+    try {
+      // try replacing current location
+      window.location.replace(url);
+    } catch (e2) {
+      // last resort: open in a new tab
+      window.open(url, '_blank');
+    }
+  }
+}
+
+function showRestricted() {
+  const card = document.querySelector('.dashboard-card');
+  if (card) {
+    card.innerHTML = `
+      <div style="padding:40px;text-align:center;">
+        <h2>Restricted</h2>
+        <p>This page is restricted to administrators only.</p>
+        <div class="actions" style="margin-top:18px;">
+          <button class="primary" type="button" id="restricted-back">Go to Dashboard</button>
+        </div>
+      </div>
+    `;
+    const btn = document.getElementById('restricted-back');
+    if (btn) btn.addEventListener('click', () => safeRedirect(`${API_ORIGIN}/dashboard`));
+  }
+}
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -39,6 +76,23 @@ function getFormValues(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+async function handleGetJson(path) {
+  const response = await fetch(path, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
+    }
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || 'Request failed');
+  }
+
+  return response.json();
+}
+
 function attachAuthLinks(root) {
   if (!root) {
     return;
@@ -47,7 +101,7 @@ function attachAuthLinks(root) {
     const target = link.getAttribute('data-nav');
     if (target) {
       link.addEventListener('click', () => {
-        window.location.href = target;
+        safeRedirect(target);
       });
     }
   });
@@ -74,7 +128,7 @@ function initRegisterPage() {
         password: data.password
       });
       setStatus(status, message || 'Registration successful. Check your inbox for the OTP.', 'success');
-      window.location.href = `/otp-verify?email=${encodeURIComponent(data.email)}`;
+      safeRedirect(`${API_ORIGIN}/otp-verify?email=` + encodeURIComponent(data.email));
     } catch (error) {
       setStatus(status, error.message || 'Registration failed', 'error');
     } finally {
@@ -98,23 +152,31 @@ function initLoginPage() {
     try {
       submitButton.disabled = true;
       setStatus(status, 'Signing you in...', '');
-      const token = await handleJsonPost('/login', {
+      let token = await handleJsonPost('/login', {
         email: data.email,
         password: data.password
       });
-      if ((token || '').toLowerCase().includes('otp sent')) {
-        setStatus(status, 'OTP sent. Check your email to continue.', 'success');
-        window.location.href = `/otp-verify?email=${encodeURIComponent(data.email)}`;
-        return;
+
+      // some backends return a JSON string with quotes; strip surrounding quotes
+      if (typeof token === 'string') {
+        token = token.replace(/^\"|\"$/g, '');
       }
 
+      // store token
       localStorage.setItem('token', token);
-      localStorage.setItem('authcore-user', JSON.stringify({
-        name: data.email || '',
-        email: data.email || ''
-      }));
+
+      // fetch current user info
+      const me = await handleGetJson('/auth/me');
+      if (me) {
+        localStorage.setItem('authcore-user', JSON.stringify(me));
+      }
+
       setStatus(status, 'Login successful. Redirecting...', 'success');
-      window.location.href = '/dashboard';
+      if (me && me.role && me.role.toUpperCase() === 'ADMIN') {
+        safeRedirect(`${API_ORIGIN}/admin-dashboard`);
+      } else {
+        safeRedirect(`${API_ORIGIN}/dashboard`);
+      }
     } catch (error) {
       setStatus(status, error.message || 'Login failed', 'error');
     } finally {
@@ -151,12 +213,37 @@ function initOtpPage() {
       });
       localStorage.setItem('token', token);
       setStatus(status, 'OTP verified. Redirecting to the dashboard...', 'success');
-      window.location.href = '/dashboard';
+      safeRedirect(`${API_ORIGIN}/dashboard`);
     } catch (error) {
       setStatus(status, error.message || 'OTP verification failed', 'error');
     } finally {
       submitButton.disabled = false;
     }
+  });
+}
+
+function initPasswordToggles() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Toggle password visibility');
+    btn.textContent = '👁';
+    btn.style.position = 'absolute';
+    btn.style.right = '8px';
+    btn.style.top = '50%';
+    btn.style.transform = 'translateY(-50%)';
+    btn.style.border = '0';
+    btn.style.background = 'transparent';
+    btn.style.cursor = 'pointer';
+    btn.style.fontSize = '1rem';
+    btn.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+    wrapper.appendChild(btn);
   });
 }
 
@@ -179,7 +266,7 @@ function initForgotPasswordPage() {
         email: data.email
       });
       setStatus(status, message || 'Reset OTP sent. Continue to the reset page.', 'success');
-      window.location.href = `/reset-password?email=${encodeURIComponent(data.email)}`;
+      safeRedirect(`${API_ORIGIN}/reset-password?email=` + encodeURIComponent(data.email));
     } catch (error) {
       setStatus(status, error.message || 'Could not send reset OTP', 'error');
     } finally {
@@ -216,7 +303,7 @@ function initResetPasswordPage() {
         newPassword: data.newPassword
       });
       setStatus(status, message || 'Password reset successful. You can sign in again.', 'success');
-      window.location.href = '/login';
+      safeRedirect(`${API_ORIGIN}/login`);
     } catch (error) {
       setStatus(status, error.message || 'Password reset failed', 'error');
     } finally {
@@ -230,6 +317,12 @@ function initDashboardPage() {
   const token = getToken();
   const storedUser = localStorage.getItem('authcore-user');
 
+  // require authentication to view dashboard
+  if (!token) {
+    safeRedirect(`${API_ORIGIN}/login`);
+    return;
+  }
+
   if (userBadge) {
     if (storedUser) {
       try {
@@ -238,10 +331,8 @@ function initDashboardPage() {
       } catch {
         userBadge.textContent = 'User';
       }
-    } else if (token) {
-      userBadge.textContent = 'Authenticated User';
     } else {
-      userBadge.textContent = 'Guest';
+      userBadge.textContent = 'Authenticated User';
     }
   }
 
@@ -249,17 +340,34 @@ function initDashboardPage() {
     button.addEventListener('click', () => {
       localStorage.removeItem('token');
       localStorage.removeItem('authcore-user');
-      window.location.href = '/login';
+      safeRedirect(`${API_ORIGIN}/login`);
     });
   });
 }
 
 function initAdminPage() {
+  // require admin role to view this page
+  const token = getToken();
+  if (!token) {
+    safeRedirect(`${API_ORIGIN}/login`);
+    return;
+  }
+
+  handleGetJson('/auth/me').then((me) => {
+    if (!me || !me.role || me.role.toUpperCase() !== 'ADMIN') {
+      // not an admin — show restricted notice in-place
+      showRestricted();
+      return;
+    }
+  }).catch(() => {
+    safeRedirect(`${API_ORIGIN}/login`);
+  });
+
   document.querySelectorAll('[data-logout]').forEach((button) => {
     button.addEventListener('click', () => {
       localStorage.removeItem('token');
       localStorage.removeItem('authcore-user');
-      window.location.href = '/login';
+      safeRedirect(`${API_ORIGIN}/login`);
     });
   });
 }
@@ -273,4 +381,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initResetPasswordPage();
   initDashboardPage();
   initAdminPage();
+  initPasswordToggles();
 });
