@@ -114,10 +114,15 @@ function initLoginPage() {
     try {
       submitButton.disabled = true;
       setStatus(status, 'Signing you in...', '');
-      const token = await handleJsonPost('/login', {
+      let token = await handleJsonPost('/login', {
         email: data.email,
         password: data.password
       });
+
+      // some backends return a JSON string with quotes; strip surrounding quotes
+      if (typeof token === 'string') {
+        token = token.replace(/^\"|\"$/g, '');
+      }
 
       // store token
       localStorage.setItem('token', token);
