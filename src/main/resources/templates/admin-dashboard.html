@@ -58,5 +58,19 @@
       </aside>
     </section>
   </main>
+<script>const token = localStorage.getItem("token");
+
+fetch("http://localhost:9090/api/admin/stats", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+})
+        .then(res => {
+          if(res.status === 403) {
+            alert("Access Denied");
+            window.location.href = "/dashboard";
+          }
+        });</script>
+
 </body>
 </html>

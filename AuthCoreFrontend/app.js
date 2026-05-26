@@ -1,4 +1,42 @@
-const api = (path) => `/auth${path}`;
+// Determine backend origin when frontend is opened from file:// (local testing).
+const API_ORIGIN = window.location.protocol === 'file:' ? 'http://localhost:9090' : '';
+const api = (path) => `${API_ORIGIN}/auth${path}`;
+
+function safeRedirect(url) {
+  try {
+    // try top-level navigation first
+    if (window.top && window.top !== window) {
+      window.top.location.href = url;
+    } else {
+      window.location.href = url;
+    }
+  } catch (e) {
+    try {
+      // try replacing current location
+      window.location.replace(url);
+    } catch (e2) {
+      // last resort: open in a new tab
+      window.open(url, '_blank');
+    }
+  }
+}
+
+function showRestricted() {
+  const card = document.querySelector('.dashboard-card');
+  if (card) {
+    card.innerHTML = `
+      <div style="padding:40px;text-align:center;">
+        <h2>Restricted</h2>
+        <p>This page is restricted to administrators only.</p>
+        <div class="actions" style="margin-top:18px;">
+          <button class="primary" type="button" id="restricted-back">Go to Dashboard</button>
+        </div>
+      </div>
+    `;
+    const btn = document.getElementById('restricted-back');
+    if (btn) btn.addEventListener('click', () => safeRedirect(`${API_ORIGIN}/dashboard`));
+  }
+}
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -63,7 +101,7 @@ function attachAuthLinks(root) {
     const target = link.getAttribute('data-nav');
     if (target) {
       link.addEventListener('click', () => {
-        window.location.href = target;
+        safeRedirect(target);
       });
     }
   });
@@ -90,7 +128,7 @@ function initRegisterPage() {
         password: data.password
       });
       setStatus(status, message || 'Registration successful. Check your inbox for the OTP.', 'success');
-      window.location.href = 'otp-verify.html?email=' + encodeURIComponent(data.email);
+      safeRedirect(`${API_ORIGIN}/otp-verify?email=` + encodeURIComponent(data.email));
     } catch (error) {
       setStatus(status, error.message || 'Registration failed', 'error');
     } finally {
@@ -135,9 +173,9 @@ function initLoginPage() {
 
       setStatus(status, 'Login successful. Redirecting...', 'success');
       if (me && me.role && me.role.toUpperCase() === 'ADMIN') {
-        window.location.href = 'admin-dashboard.html';
+        safeRedirect(`${API_ORIGIN}/admin-dashboard`);
       } else {
-        window.location.href = 'dashboard.html';
+        safeRedirect(`${API_ORIGIN}/dashboard`);
       }
     } catch (error) {
       setStatus(status, error.message || 'Login failed', 'error');
@@ -175,7 +213,7 @@ function initOtpPage() {
       });
       localStorage.setItem('token', token);
       setStatus(status, 'OTP verified. Redirecting to the dashboard...', 'success');
-      window.location.href = 'dashboard.html';
+      safeRedirect(`${API_ORIGIN}/dashboard`);
     } catch (error) {
       setStatus(status, error.message || 'OTP verification failed', 'error');
     } finally {
@@ -228,7 +266,7 @@ function initForgotPasswordPage() {
         email: data.email
       });
       setStatus(status, message || 'Reset OTP sent. Continue to the reset page.', 'success');
-      window.location.href = 'reset-password.html?email=' + encodeURIComponent(data.email);
+      safeRedirect(`${API_ORIGIN}/reset-password?email=` + encodeURIComponent(data.email));
     } catch (error) {
       setStatus(status, error.message || 'Could not send reset OTP', 'error');
     } finally {
@@ -265,7 +303,7 @@ function initResetPasswordPage() {
         newPassword: data.newPassword
       });
       setStatus(status, message || 'Password reset successful. You can sign in again.', 'success');
-      window.location.href = 'login.html';
+      safeRedirect(`${API_ORIGIN}/login`);
     } catch (error) {
       setStatus(status, error.message || 'Password reset failed', 'error');
     } finally {
@@ -281,7 +319,7 @@ function initDashboardPage() {
 
   // require authentication to view dashboard
   if (!token) {
-    window.location.href = 'login.html';
+    safeRedirect(`${API_ORIGIN}/login`);
     return;
   }
 
@@ -302,7 +340,7 @@ function initDashboardPage() {
     button.addEventListener('click', () => {
       localStorage.removeItem('token');
       localStorage.removeItem('authcore-user');
-      window.location.href = 'login.html';
+      safeRedirect(`${API_ORIGIN}/login`);
     });
   });
 }
@@ -311,25 +349,25 @@ function initAdminPage() {
   // require admin role to view this page
   const token = getToken();
   if (!token) {
-    window.location.href = 'login.html';
+    safeRedirect(`${API_ORIGIN}/login`);
     return;
   }
 
   handleGetJson('/auth/me').then((me) => {
     if (!me || !me.role || me.role.toUpperCase() !== 'ADMIN') {
-      // not an admin — redirect to user dashboard
-      window.location.href = 'dashboard.html';
+      // not an admin — show restricted notice in-place
+      showRestricted();
       return;
     }
   }).catch(() => {
-    window.location.href = 'login.html';
+    safeRedirect(`${API_ORIGIN}/login`);
   });
 
   document.querySelectorAll('[data-logout]').forEach((button) => {
     button.addEventListener('click', () => {
       localStorage.removeItem('token');
       localStorage.removeItem('authcore-user');
-      window.location.href = 'login.html';
+      safeRedirect(`${API_ORIGIN}/login`);
     });
   });
 }

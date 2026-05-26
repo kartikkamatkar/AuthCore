@@ -12,10 +12,7 @@ import com.Auth.Authcore.repository.RegisterRepo;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,6 +30,11 @@ public class AuthController
     private OtpService otpservice;
     @Autowired
     private EmailService emailService;
+
+    @GetMapping("/stats")
+    public String stats() {
+        return "Admin Access Granted";
+    }
     @PostMapping("/logout")
     public  String logout(HttpServletRequest request){
         String authHeader =request.getHeader("Authorization");
